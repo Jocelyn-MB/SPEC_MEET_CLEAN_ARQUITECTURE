@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    /* --- 1. Rutas y Estructura --- */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    
+    /* --- 2. Idioma del Servidor --- */
+    "target": "es2022",           /* Ideal para Node v24 */
+    "module": "commonjs",         /* Estándar para Express/Node */
+    "moduleResolution": "node",
+    
+    /* --- 3. Interoperabilidad --- */
+    "esModuleInterop": true,      /* Permite importar Express como módulo moderno */
+    "skipLibCheck": true,         /* Acelera la compilación ignorando errores en librerías ajenas */
+    "sourceMap": true,            /* Útil para debuggear (te dice la línea real del error en TS) */
+
+    /* --- 4. Reglas de Seguridad (Strict Mode) --- */
+    "strict": true,               /* Activa las reglas base de seguridad */
+    "noImplicitAny": true,        /* Prohíbe variables sin tipo */
+    
+    /* Verificacion de valores nulos dentro de un array*/
+    "noUncheckedIndexedAccess": true 
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
