@@ -9,7 +9,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ adminOnly = false}) => 
   const {isAuthenticated, isLoading, user} = useAuth();
 
   if (isLoading) {
-    return (<div className="flex items-center justify-center min-h-screen bg-black text-white">
+    return (<div className="flex items-center justify-center min-h-screen bg-white text-black">
         Loading...
       </div>
     );

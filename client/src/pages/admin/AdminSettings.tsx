@@ -321,6 +321,15 @@ const AdminSettings: React.FC = () => {
                       className="bg-zinc-800 w-full py-1 px-2 rounded-md border border-zinc-700 text-white text-sm"
                       placeholder="Nombre del paquete"
                     />
+                    <div>
+                      <input
+                      type="text"
+                      value={pkg.name}
+                      onChange={e => updatePackage(pkg.id!, 'name', e.target.value)}
+                      className="bg-zinc-800 w-full py-1 px-2 rounded-md border border-zinc-700 text-white text-sm"
+                      placeholder="Descripción"
+                    />
+                    </div>
                   <button type="button" onClick={() => removePackage(pkg.id!)} className="ml-2 text-red-400 hover:text-red-300">
                     <TrashIcon className="h-4 w-4" />
                   </button>
@@ -625,7 +634,7 @@ const AdminSettings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-12 w-12 text-purple-500 animate-spin" />
+        <Loader2 className="h-12 w-12 text-primary animate-spin" />
       </div>
     );
   }
@@ -640,7 +649,7 @@ const AdminSettings: React.FC = () => {
       )}
 
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white">Configuración del Sistema</h1>
+        <h1 className="font-makron text-3xl font-bold text-background">Configuración del Sistema</h1>
         {/* Se eliminó el botón "Guardar Global" de aquí */}
       </div>
 
@@ -671,5 +680,4 @@ const AdminSettings: React.FC = () => {
     </div>
   );
 };
-
 export default AdminSettings;

@@ -1,30 +1,33 @@
 import { Router } from 'express';
-import { 
-    getPricingSettings, 
-    updatePricingSettings, 
-    getLocationSettings, 
-    updateLocationSettings,
-    getTermsSettings,
-    updateTermsSettings,
-    getWifiSettings,        // ← ADD THIS
-    updateWifiSettings 
+import {
+  getPricingSettings, updatePricingSettings,
+  getLocationSettings, updateLocationSettings,
+  getTermsSettings, updateTermsSettings,
+  getWifiSettings, updateWifiSettings,
+  getOperationalSettings, updateOperationalSettings,
 } from '../controllers/admin_settings_controller';
-import { authenticateToken } from '../middlewares/aut_middlewares'; // Asegúrate que la ruta sea correcta
+import { authenticateToken } from '../middlewares/aut_middlewares';
 
 const router = Router();
 
-// Rutas de Precios
-router.get('/pricing',  getPricingSettings);
+// Precios
+router.get('/pricing', getPricingSettings);
 router.put('/pricing', authenticateToken, updatePricingSettings);
 
-// Rutas de Ubicación
+// Ubicación y horarios
 router.get('/location', getLocationSettings);
 router.put('/location', authenticateToken, updateLocationSettings);
 
-// Rutas de Términos
+// Términos y condiciones
 router.get('/terms', getTermsSettings);
 router.put('/terms', authenticateToken, updateTermsSettings);
-// Rutas de Wi-Fi
+
+// Wi-Fi
 router.get('/wifi', getWifiSettings);
 router.put('/wifi', authenticateToken, updateWifiSettings);
+
+// Políticas operacionales
+router.get('/operational', getOperationalSettings);
+router.put('/operational', authenticateToken, updateOperationalSettings);
+
 export default router;

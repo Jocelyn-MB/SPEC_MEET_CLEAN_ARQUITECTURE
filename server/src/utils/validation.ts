@@ -1,4 +1,4 @@
-import {email, z} from 'zod';
+import {z} from 'zod';
 
 export const registerSchema = z.object({
     name: z.string().min(2, "El nombre debe tener al menos  2 caracteres"),
@@ -42,3 +42,4 @@ export const reservationSchema = z.object({
   message: "la hora de fin debe ser despues de la hora de inicio",
   path: ["endTime"]
 });
+

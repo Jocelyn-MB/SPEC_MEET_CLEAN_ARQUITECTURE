@@ -21,6 +21,7 @@ const LoginPage: React.FC = () => {
     try {
 
       const userLogged = await login(email, password, rememberMe);
+              //console.log("QUE ME DEVUELVE EL LOGIN?:", userLogged); 
       if(userLogged.role === 'ADMIN') {
         navigate('/admin');
       } else {
@@ -41,7 +42,7 @@ const LoginPage: React.FC = () => {
   };
   
   return <div className="relative min-h-screen w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div 
+   {/*  <div 
       className="absolute inset-0 bg-cover bg-center z-0" 
       style={{
         backgroundImage: "url('https://uploadthingy.s3.us-west-1.amazonaws.com/mnx4A3B36Dy2nyF5i8QPC8/PHOTO-2025-02-03-12-44-43.jpg')",
@@ -49,11 +50,11 @@ const LoginPage: React.FC = () => {
         backgroundPosition: 'center center'
       }}
     >
-    </div>
+    </div> */}
       <div className="relative z-10 w-full max-w-md ">
         <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white">Iniciar Sesión</h2>
+            <h2 className=" text-3xl font-bold text-white">Iniciar Sesión</h2>
             <p className="mt-2 text-white/80">
               Accede a tu cuenta para gestionar tus reservas
             </p>

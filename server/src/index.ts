@@ -1,10 +1,16 @@
-import dotenv from 'dotenv'; // 1. Importar dotenv primero
-dotenv.config();             // 2. CONFIGURARLO INMEDIATAMENTE
+import dotenv from 'dotenv';
+dotenv.config();
 
-import app from './app';     // 3. Ahora sí, importar la app (ya tendrá acceso a las variables)
+import app from './app';
+import { startNotificationCron } from './jobs/notification.cron';
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`\n🚀 Servidor SPEC.MEET corriendo en http://localhost:${PORT}`);
+  console.log(`📦 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  
+  // Iniciar job de notificaciones
+  startNotificationCron();
+  console.log('⏰ Cron de notificaciones iniciado');
 });

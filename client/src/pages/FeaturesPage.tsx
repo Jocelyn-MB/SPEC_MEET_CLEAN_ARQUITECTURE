@@ -18,13 +18,13 @@ const FeaturesPage: React.FC = () => {
   };
   return <div className="w-full">
       {/* Room Preview Section */}
-      <section className="bg-black py-16 md:py-24">
+      <section className="bg-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black/90">
               Tu sala de juntas y reuniones
             </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
+            <p className="text-accent max-w-2xl mx-auto">
               Un ambiente sofisticado y tecnológico para tus reuniones,
               videollamadas, capacitaciones o eventos privados.
             </p>
@@ -34,55 +34,55 @@ const FeaturesPage: React.FC = () => {
               <img src="/PHOTO-2025-02-03-12-44-43.jpg" alt="Sala de juntas moderna" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col justify-center">
-              <h3 className="text-2xl font-bold mb-6 text-white">
+              <h3 className="text-2xl font-bold mb-6 text-black/90">
                 Características de la sala
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Capacidad para 8 personas con mesa de juntas ejecutiva
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Smart TV 4K de 55" con conexiones HDMI y inalámbricas
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Sistema de videoconferencia con cámara HD y micrófono
                     omnidireccional
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Internet de alta velocidad con Wi-Fi dedicado
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Pizarra digital interactiva
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Sistema de control de clima
                   </span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircleIcon className="h-6 w-6 text-gray-400 mr-2 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-300">
+                  <span className="text-accent">
                     Servicio de bebidas y amenidades disponibles
                   </span>
                 </li>
               </ul>
-              <Link to="/booking" className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-md transition-all mt-8 text-center md:self-start">
+              <Link to="/booking" className="bg-background hover:bg-background/80 text-white font-medium py-3 px-6 rounded-md transition-all mt-8 text-center md:self-start">
                 Reservar Ahora
               </Link>
             </div>

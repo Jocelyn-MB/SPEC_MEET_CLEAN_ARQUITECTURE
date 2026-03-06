@@ -47,7 +47,7 @@ const RegisterPage: React.FC = () => {
     navigate('/dashboard');
   };
   return <div className="relative min-h-screen w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div 
+   {/*  <div 
       className="absolute inset-0 z-0" 
       style={{
         backgroundImage: "url('https://uploadthingy.s3.us-west-1.amazonaws.com/mnx4A3B36Dy2nyF5i8QPC8/PHOTO-2025-02-03-12-44-43.jpg')",
@@ -56,7 +56,7 @@ const RegisterPage: React.FC = () => {
       }}
     >
       
-    </div>
+    </div> */}
       <div className="relative z-10 w-full max-w-md ">
         <div className="bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8">
           <div className="text-center mb-8">
@@ -169,19 +169,19 @@ const RegisterPage: React.FC = () => {
                   type="checkbox" 
                   checked={acceptTerms} 
                   onChange={e => setAcceptTerms(e.target.checked)} 
-                  className="h-4 w-4 rounded border-white/20 bg-black/30 text-blue-400 focus:ring-2 focus:ring-white/30 focus:ring-offset-0 cursor-pointer" 
+                  className="h-4 w-4 rounded border-white/20 bg-black/30 text-primary focus:ring-2 focus:ring-primary/30 focus:ring-offset-0 cursor-pointer"
                 />
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="text-white/70 leading-relaxed cursor-pointer">
                   Acepto los{' '}
-                  <Link to="#" className="font-medium text-gray-400 hover:text-gray-200 underline underline-offset-2 transition-colors">
+                  <Link to="/terms-and-conditions" className="font-medium text-gray-400 hover:text-gray-200 underline underline-offset-2 transition-colors">
                     Términos y Condiciones
                   </Link>{' '}
-                  y la{' '}
+                 {/*  y la{' '}
                   <Link to="#" className="font-medium text-gray-400 hover:text-gray-200 underline underline-offset-2 transition-colors">
                     Política de Privacidad
-                  </Link>
+                  </Link> */}
                 </label>
               </div>
             </div>

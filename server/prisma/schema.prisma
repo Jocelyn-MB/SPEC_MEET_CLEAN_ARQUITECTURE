@@ -1,3 +1,8 @@
+// ============================================================
+// SPEC.MEET - Prisma Schema Completo
+// PostgreSQL + Prisma ORM
+// ============================================================
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,115 +13,310 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ============================================================
+// MODELO: USUARIO
+// Gestiona clientes y administradores del sistema
+// ============================================================
 model User {
-  id          String        @id @default(uuid())
-  email       String        @unique
-  password    String
-  name        String
-  role        String        @default("CLIENT")
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime @updatedAt
-
-  resetPasswordToken String? @unique
-  resetPasswordExpired DateTime?
-  
-  reservation Reservation[]
-}
-
-model Room {
-  id             String        @id @default(uuid())
-  name           String
-  wifi_ssid      String
-  wifi_pass      String
-  price_per_hour Decimal
-  createdAt      DateTime      @default(now())
-  status         String        @default("INACTIVO")
-  updatedAt      DateTime      @updatedAt
-  capacity       Int           @default(10)
-  ttlock_lock_id String?
-  reservations   Reservation[]
-}
-
-model Reservation {
-  id                     String   @id @default(uuid())
-  userId                 String
-  roomId                 String
-  start_time             DateTime
-  end_time               DateTime
-  access_code            String?
-  total_paid             Decimal
-  status                 String   @default("PENDING")
-  createdAt              DateTime @default(now())
-  accepted_terms_version String?
-  terms_accepted         Boolean  @default(false)
-  payment                Payment?
-  room                   Room     @relation(fields: [roomId], references: [id])
-  user                   User     @relation(fields: [userId], references: [id])
-
-  @@index([roomId, start_time, end_time])
-}
-
-model Payment {
-  id            String      @id @default(uuid())
-  reservationId String      @unique
-  amount        Decimal
-  provider_id   String
-  status        String
-  iva_breakdown String
-  createdAt     DateTime    @default(now())
-  currency      String      @default("MXN")
-  paymentMethod String?
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-}
-
-model SystemSetting {
-  id          String   @id @default(uuid())
-  key         String   @unique
-  value       String
-  description String?
-  dataType    String   @default("TEXT")
-  updatedAt   DateTime @updatedAt
-}
-
-model TermsHistory {
-  id          String    @id @default(uuid())
-  version     String
-  content     String
-  activeFrom  DateTime  @default(now())
-  activeUntil DateTime?
-  createdAt   DateTime  @default(now())
-}
-
-model PricingPackage {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
   name      String
-  hours     Int
-  price     Decimal
-  discount  Int
+  phone     String?
+  role      String   @default("CLIENT") // CLIENT | ADMIN
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Recuperación de contraseña
+  resetPasswordToken   String?  @unique
+  resetPasswordExpired DateTime?
+
+  // Relaciones
+  reservations Reservation[]
+  invoices     Invoice[]
+
+  @@map("users")
 }
 
+// ============================================================
+// MODELO: SALA
+// La sala de juntas física gestionada por SPEC.MEET
+// ============================================================
+model Room {
+  id             String   @id @default(uuid())
+  name           String   @default("Sala Principal SPEC.MEET")
+  description    String?
+  wifi_ssid      String   @default("")
+  wifi_pass      String   @default("")
+  price_per_hour Decimal  @db.Decimal(10, 2)
+  capacity       Int      @default(8)
+  status         String   @default("ACTIVE") // ACTIVE | INACTIVE | MAINTENANCE
+  ttlock_lock_id String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relaciones
+  reservations Reservation[]
+  blockSlots   BlockedSlot[]
+
+  @@map("rooms")
+}
+
+// ============================================================
+// MODELO: RESERVACIÓN
+// Core del sistema. Cada reserva de la sala.
+// El bloque de 30 min limpieza se añade al end_time real
+// ============================================================
+model Reservation {
+  id         String   @id @default(uuid())
+  userId     String
+  roomId     String
+  start_time DateTime
+  end_time   DateTime              // Fin REAL de la reserva
+  cleaning_end_time DateTime?      // start_time + duración + 30 min limpieza
+  
+  access_code            String?
+  total_paid             Decimal  @db.Decimal(10, 2)
+  hours_booked           Decimal  @db.Decimal(4, 2)
+  package_id             Int?     // Si usó un paquete
+  
+  status                 String   @default("PENDING")
+  // PENDING | PAID | CANCELLED | COMPLETED | EXPIRED
+  
+  // Términos y condiciones
+  terms_accepted         Boolean  @default(false)
+  accepted_terms_version String?
+
+  // Facturación
+  requires_invoice  Boolean @default(false)
+  invoice_requested Boolean @default(false)
+  
+  // Notas internas (admin)
+  admin_notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  user    User     @relation(fields: [userId], references: [id])
+  room    Room     @relation(fields: [roomId], references: [id])
+  payment Payment?
+  invoice Invoice?
+
+  @@index([roomId, start_time, end_time])
+  @@index([userId])
+  @@index([status])
+  @@map("reservations")
+}
+
+// ============================================================
+// MODELO: PAGO
+// Registro de cada transacción procesada por Stripe
+// ============================================================
+model Payment {
+  id            String   @id @default(uuid())
+  reservationId String   @unique
+  
+  amount        Decimal  @db.Decimal(10, 2)
+  subtotal      Decimal  @db.Decimal(10, 2) @default(0)
+  iva_amount    Decimal  @db.Decimal(10, 2) @default(0)
+  iva_rate      Decimal  @db.Decimal(5, 4)  @default(0.16)
+  
+  currency      String   @default("MXN")
+  provider_id   String   // Stripe PaymentIntent ID
+  status        String   // COMPLETED | FAILED | REFUNDED | PARTIAL_REFUND
+  paymentMethod String?  // card | oxxo | etc.
+  iva_breakdown String   @default("IVA 16% INCLUIDO")
+  
+  refundAmount  Decimal? @db.Decimal(10, 2)
+  refundedAt    DateTime?
+  refundReason  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+
+  @@map("payments")
+}
+
+// ============================================================
+// MODELO: FACTURA
+// Solicitudes de factura por parte del cliente
+// ============================================================
+model Invoice {
+  id            String   @id @default(uuid())
+  reservationId String   @unique
+  userId        String
+  
+  // Datos fiscales
+  rfc             String
+  razon_social    String
+  uso_cfdi        String  @default("G03")
+  regimen_fiscal  String  @default("612")
+  email_factura   String
+  
+  status    String   @default("PENDING") // PENDING | GENERATED | SENT | ERROR
+  folio     String?
+  xml_url   String?
+  pdf_url   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@map("invoices")
+}
+
+// ============================================================
+// MODELO: HORARIOS BLOQUEADOS
+// Bloqueos manuales del admin (mantenimiento, eventos internos)
+// ============================================================
+model BlockedSlot {
+  id     String   @id @default(uuid())
+  roomId String
+  
+  start_time DateTime
+  end_time   DateTime
+  reason     String   @default("Mantenimiento")
+  created_by String?  // ID del admin que lo bloqueó
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  room Room @relation(fields: [roomId], references: [id])
+
+  @@index([roomId, start_time, end_time])
+  @@map("blocked_slots")
+}
+
+// ============================================================
+// MODELO: PAQUETES DE PRECIOS
+// Paquetes de horas con descuento configurables desde el admin
+// ============================================================
+model PricingPackage {
+  id       Int     @id @default(autoincrement())
+  name     String
+  hours    Int
+  price    Decimal @db.Decimal(10, 2)
+  discount Int     @default(0) // Porcentaje de descuento
+  isActive Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pricing_packages")
+}
+
+// ============================================================
+// MODELO: CONFIGURACIÓN DEL NEGOCIO
+// Una sola fila con toda la configuración operativa
+// ============================================================
 model BusinessConfig {
-  id                 Int      @id @default(1)
-  locationName       String   @default("SPEC.MEET Central")
-  address            String
-  accessInstructions String?
-  openingHours       Json
-  refundFullHours    Int      @default(24)
-  refundPartialHours Int      @default(12)
-  refundPartialPct   Int      @default(50)
-  updatedAt          DateTime @updatedAt
+  id Int @id @default(1) // Singleton - siempre ID = 1
+
+  // Información de la sala
+  locationName       String  @default("SPEC.MEET Central")
+  address            String  @default("")
+  accessInstructions String? @db.Text
+
+  // Horarios de operación (JSON: { "lunes": { open: "08:00", close: "20:00" }, ... })
+  openingHours Json @default("{}")
+
+  // Precios (backup, la fuente principal es price_per_hour en Room)
+  pricePerHour Decimal @db.Decimal(10, 2) @default(200)
+
+  // Políticas de cancelación y reembolso
+  refundFullHours    Int @default(24) // Horas antes para reembolso completo
+  refundPartialHours Int @default(12) // Horas antes para reembolso parcial
+  refundPartialPct   Int @default(50) // Porcentaje de reembolso parcial
+
+  // Tiempos operacionales
+  cleaningMinutes   Int @default(30) // Minutos bloqueados después de cada reserva
+  gracePeriodMin    Int @default(15) // Minutos de gracia para llegada
+  minBookingHours   Int @default(1)  // Mínimo de horas por reserva
+  maxBookingHours   Int @default(8)  // Máximo de horas por reserva
+  maxAdvanceDays    Int @default(60) // Días máximo de anticipación para reservar
+
+  // Cargos adicionales
+  damageChargeMax    Decimal @db.Decimal(10, 2) @default(5000)
+  excessCapacityFee  Decimal @db.Decimal(10, 2) @default(500)
+  
+  // Configuración IVA
+  ivaRate Decimal @db.Decimal(5, 4) @default(0.16)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("business_config")
 }
 
+// ============================================================
+// MODELO: TÉRMINOS Y CONDICIONES
+// Versión activa de los T&C con plantilla dinámica
+// ============================================================
 model TermsConfig {
-  id                String   @id @default(uuid())
-  version           String
-  isActive          Boolean  @default(false)
-  templateContent   String
-  additionalClauses String?
-  privacyOptions    Json
-  createdAt         DateTime @default(now())
-  createdBy         String?
+  id              String   @id @default(uuid())
+  version         String
+  isActive        Boolean  @default(false)
+  templateContent String   @db.Text  // Plantilla con variables {{precio_hora}}, etc.
+  additionalClauses String? @db.Text
+  privacyOptions  Json     @default("{}")
+  createdAt       DateTime @default(now())
+  createdBy       String?
+
+  @@map("terms_config")
+}
+
+// ============================================================
+// MODELO: HISTORIAL DE TÉRMINOS
+// Registro de versiones anteriores de los T&C
+// ============================================================
+model TermsHistory {
+  id          String    @id @default(uuid())
+  version     String
+  content     String    @db.Text
+  activeFrom  DateTime  @default(now())
+  activeUntil DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@map("terms_history")
+}
+
+// ============================================================
+// MODELO: NOTIFICACIONES PROGRAMADAS
+// Control de las notificaciones enviadas (24h, 1h, 10min)
+// ============================================================
+model ScheduledNotification {
+  id            String   @id @default(uuid())
+  reservationId String
+  type          String   // REMINDER_24H | REMINDER_1H | REMINDER_10MIN | CONFIRMATION | CANCELLATION
+  scheduledFor  DateTime
+  sentAt        DateTime?
+  status        String   @default("PENDING") // PENDING | SENT | FAILED
+  
+  createdAt DateTime @default(now())
+
+  @@index([scheduledFor, status])
+  @@map("scheduled_notifications")
+}
+
+// ============================================================
+// MODELO: CONFIGURACIÓN GENERAL (KEY-VALUE)
+// Para settings simples y extensibles
+// ============================================================
+model SystemSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  dataType    String   @default("TEXT") // TEXT | NUMBER | BOOLEAN | JSON
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_settings")
 }

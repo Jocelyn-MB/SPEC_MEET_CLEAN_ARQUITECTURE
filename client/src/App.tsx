@@ -30,6 +30,7 @@ import AdminFinancial from './pages/admin/AdminFinancial';
 import AdminReports from './pages/admin/AdminReports';
 import UserManagement from './pages/admin/UserManagement';
 import AdminCalendar from './pages/admin/AdminCalendar';
+import PricingSettings from './pages/admin/PricingSettings';
 
 // Wrapper auxiliar para que el Layout funcione con Rutas anidadas
 const LayoutWrapper = () => {
@@ -91,6 +92,7 @@ export const AppRoutes = () => {
             <Route path="reports" element={<AdminReports />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="calendar" element={<AdminCalendar />} />
+            <Route path="pricing" element={<PricingSettings />} />
         </Route>
       </Route>
 

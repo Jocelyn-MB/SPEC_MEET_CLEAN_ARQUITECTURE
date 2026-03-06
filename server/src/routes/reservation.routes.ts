@@ -1,9 +1,28 @@
-import { Router } from "express";
-import { createReservation, getMyReservations } from "../controllers/reservation_controller";
-import { authenticateToken } from "../middlewares/aut_middlewares"; 
+import { Router } from 'express';
+import {
+  createReservation,
+  getAvailability,
+  getMyReservations,
+  getMyReservationDates,
+  cancelReservation,
+  getAllReservations,
+} from '../controllers/reservation_controller';
+import { authenticateToken } from '../middlewares/aut_middlewares';
 
-const reservas = Router();
+const router = Router();
 
-reservas.post('/', authenticateToken, createReservation);
-reservas.get('/my-reservatios', authenticateToken, getMyReservations)
-export default reservas;
+// Disponibilidad (pública para ver el calendario)
+router.get('/availability', getAvailability);
+
+// Reservas del usuario logueado
+router.get('/my', authenticateToken, getMyReservations);
+router.get('/my-dates', authenticateToken, getMyReservationDates);
+
+// CRUD de reservas
+router.post('/', authenticateToken, createReservation);
+router.delete('/:id', authenticateToken, cancelReservation);
+
+// Admin: todas las reservas
+router.get('/all', authenticateToken, getAllReservations);
+
+export default router;
